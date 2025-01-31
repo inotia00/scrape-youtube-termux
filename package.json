@@ -1,0 +1,14 @@
+{
+  "name": "youtube-scraper-data-termux",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "puppeteer-core": "^24.1.1"
+  },
+  "engines": {
+    "node": ">= 18"
+  }
+}
