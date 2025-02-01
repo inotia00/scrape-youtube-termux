@@ -1,4 +1,5 @@
 const puppeteer = require('puppeteer-core');
+const fs = require('fs');
 
 scrapeYouTubeData('aqz-KE-bpKQ').then(() => console.log('[scrape-youtube-termux] Fetch started..'));
 
@@ -11,6 +12,7 @@ async function scrapeYouTubeData(videoId) {
     ],
     executablePath:"/usr/bin/chromium"
   });
+  const responseJsonFile = './response.json';
 
   try {
     // Start a new page
@@ -26,14 +28,20 @@ async function scrapeYouTubeData(videoId) {
     client.on("Network.requestWillBeSent", (e) => {
       if (e.request.url.includes("/youtubei/v1/player")) {
         const jsonData = JSON.parse(e.request.postData);
+        const poToken = `${jsonData["serviceIntegrityDimensions"]["poToken"]}`;
+        const visitorData = `${jsonData["context"]["client"]["visitorData"]}`;
 
         // Extract and log PO Token and visitor data
-        console.log(
-          `PO_TOKEN: ${jsonData["serviceIntegrityDimensions"]["poToken"]}`
-        );
-        console.log(
-          `VISITOR_DATA: ${jsonData["context"]["client"]["visitorData"]}`
-        );
+        console.log(`PO_TOKEN: ${poToken}`);
+        console.log(`VISITOR_DATA: ${visitorData}`);
+
+        // Save PO Token and visitor data to json
+        const responseJson = JSON.parse(fs.readFileSync(responseJsonFile, 'utf8'));
+
+        responseJson.poToken = poToken
+        responseJson.visitorData = visitorData
+
+        fs.writeFileSync(responseJsonFile, JSON.stringify(responseJson));
 
         // Close the browser
         browser.close();
